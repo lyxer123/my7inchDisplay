@@ -33,6 +33,36 @@
 #include <ESP_IOExpander_Library.h>
 #include <ui.h>
 
+#include <painlessMesh.h>
+#include <ArduinoJson.h>  // 版本6.19.4
+
+#define   MESH_SSID       "whateverYouLike"
+#define   MESH_PASSWORD   "somethingSneaky"
+#define   MESH_PORT       5555
+
+// Prototypes
+void sendMessage(); 
+void receivedCallback(uint32_t from, String & msg);
+void newConnectionCallback(uint32_t nodeId);
+void changedConnectionCallback(); 
+void nodeTimeAdjustedCallback(int32_t offset); 
+void delayReceivedCallback(uint32_t from, int32_t delay);
+
+Scheduler     userScheduler; // to control your personal task
+painlessMesh  mesh;
+
+bool calc_delay = false;
+SimpleList<uint32_t> nodes;
+uint32_t RemoteControlNodeID; // 声明全局变量
+uint32_t MainBoardID;       // 声明全局变量
+String receivedCommand; // 声明全局变量以存储接收到的命令
+
+void sendMessage() ; // Prototype
+// Task taskSendMessage( TASK_SECOND * 1, TASK_FOREVER, &sendMessage ); // start with a one second interval
+Task taskSendMessage( 10, TASK_FOREVER, &sendMessage ); // start with a one second interval
+
+String command;
+
 // Extend IO Pin define
 #define TP_RST 1
 #define LCD_BL 2
@@ -54,7 +84,7 @@
 
 /* LVGL porting configurations */
 #define LVGL_TICK_PERIOD_MS     (2)
-#define LVGL_TASK_MAX_DELAY_MS  (500)
+#define LVGL_TASK_MAX_DELAY_MS  (1000)
 #define LVGL_TASK_MIN_DELAY_MS  (1)
 #define LVGL_TASK_STACK_SIZE    (4 * 1024)
 #define LVGL_TASK_PRIORITY      (2)
@@ -141,6 +171,22 @@ void lvgl_port_task(void *arg)
 void setup()
 {
     Serial.begin(115200); /* prepare for possible serial debug */
+
+    mesh.setDebugMsgTypes(ERROR | DEBUG);  // set before init() so that you can see error messages
+
+    mesh.init(MESH_SSID, MESH_PASSWORD, &userScheduler, MESH_PORT);
+    mesh.onReceive(&receivedCallback);
+    mesh.onNewConnection(&newConnectionCallback);
+    mesh.onChangedConnections(&changedConnectionCallback);
+    mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
+    mesh.onNodeDelayReceived(&delayReceivedCallback);
+
+    userScheduler.addTask( taskSendMessage );
+    taskSendMessage.enable();
+    // 获取并打印节点ID
+    RemoteControlNodeID = mesh.getNodeId();
+    Serial.printf("Node ID: %u\n", RemoteControlNodeID);
+
 
     String LVGL_Arduino = "Hello LVGL! ";
     LVGL_Arduino += String('V') + lv_version_major() + "." + lv_version_minor() + "." + lv_version_patch();
@@ -229,5 +275,201 @@ void setup()
 void loop()
 {
     // Serial.println("Loop");
-    sleep(1);
+    mesh.update();
+   // digitalWrite(LED, !onFlag);
+
+    if (Serial.available() > 0) 
+    {
+      receivedCommand = Serial.readStringUntil('\n');                     // 读取直到换行符
+      receivedCommand.trim();
+      if (receivedCommand.length() == 2 && (receivedCommand[0] == 'A' || receivedCommand[0] == 'B' || receivedCommand[0] == 'C') && (receivedCommand[1] == '0' || receivedCommand[1] == '1'))
+      {    
+        Serial.printf("Serial Received command: %s\n", receivedCommand.c_str());
+      }    
+    }
+    // sleep(1);
+}
+
+String lastCommand; // 声明一个全局变量来存储上一次的 command
+void sendMessage() {
+  //String command;
+  // 创建 JSON 格式的控制命令，其中receivedCommand为串口收到的命令
+  if (!receivedCommand.isEmpty() && (receivedCommand == "A0" || receivedCommand == "A1" || 
+                                      receivedCommand == "B0" || receivedCommand == "B1" || 
+                                      receivedCommand == "C0" || receivedCommand == "C1")) {
+    // 拼装完整的 JSON 字符串
+    command = "{\"Iam\":\"RemoteControl\",\"Id\":" + String(RemoteControlNodeID) + ",\"command\":\"" + receivedCommand + "\"}";
+  } else {
+    // 只拼装 Id 的 JSON 字符串
+    command = "{\"Iam\":\"RemoteControl\",\"Id\":" + String(RemoteControlNodeID) + "}";
+  }
+
+  // 打印调试信息
+  Serial.printf("Serial Received command: %s\n", receivedCommand.c_str());
+  Serial.printf("Constructed command: %s\n", command.c_str());
+
+  // 判断 command 是否与上一次相同
+  if (command == lastCommand) {
+      // 如果相同，延长执行时间（例如，使用 delay 或其他逻辑）
+      Serial.println("Command is the same as last time, delaying execution...");
+      vTaskDelay(pdMS_TO_TICKS(1000)); // 延迟 1000 毫秒（1 秒）
+  } else {
+      // 如果不同，立即执行
+      mesh.sendBroadcast(command);
+      lastCommand = command; // 更新上一次的 command
+  }
+
+  if (calc_delay) {
+    SimpleList<uint32_t>::iterator node = nodes.begin();
+    while (node != nodes.end()) {
+      mesh.startDelayMeas(*node);
+      node++;
+    }
+    calc_delay = false;
+  }
+
+  Serial.printf("Sending message: %s\n", command.c_str());  
+  taskSendMessage.setInterval( random(TASK_SECOND * 1, TASK_SECOND * 5));  // between 1 and 5 seconds
+}
+
+//用于判断主机是否受到遥控器发出的命令，如果再次受到的命令一致，则遥控器将再次收到的信号比对，并清空
+void receivedCallback(uint32_t from, String & msg) {
+  Serial.printf("startHere: Received from %u msg=%s\n", from, msg.c_str());
+  // 判断 command 和 msg 是否相等，如果收到，则代表主机已经收到该命令，并应该执行了相关命令，则不需要再发送命令了。
+  
+  // {"Iam":"remotecontroler","Id":3520337297}
+  // {"Iam":"remotecontroler","Id":3520337297,"command":"A1"}
+  // {"Iam":"MainBoard","Id":491568245}
+  if (command == msg) {
+    // 检查 command 中是否包含 "command" 的 JSON 对
+    if (command.indexOf("\"command\":") != -1) {
+        receivedCommand = ""; // 将 receivedCommand 赋值为空
+    }
+  }
+
+    // 创建一个 JSON 文档
+  StaticJsonDocument<200> doc; // 根据需要调整大小
+
+  // 解析 JSON 字符串
+  DeserializationError error = deserializeJson(doc, msg);
+
+  // 检查解析是否成功
+  if (error) {
+      Serial.print("Failed to parse JSON: ");
+      Serial.println(error.f_str());
+      return;
+  }
+
+  // 获取 Id 的值并赋值给 MainBoardID
+  MainBoardID = doc["Id"];
+  Serial.printf("MainBoardID: %u\n", MainBoardID);
+}
+
+// 递归函数来查找 nodeId
+void searchNodeId(const JsonObject& obj, bool& foundRemoteControl, bool& foundMainBoard) {
+    // 获取当前对象的 nodeId
+    if (obj.containsKey("nodeId")) {
+        uint32_t nodeId = obj["nodeId"];
+        if (nodeId == RemoteControlNodeID) {
+            foundRemoteControl = true; // 找到 RemoteControlNodeID
+        }
+        if (nodeId == MainBoardID) {
+            foundMainBoard = true; // 找到 MainBoardID
+        }
+    }
+
+    // 遍历 subs 数组
+    if (obj.containsKey("subs")) {
+        for (const JsonObject& sub : obj["subs"].as<JsonArray>()) {
+            searchNodeId(sub, foundRemoteControl, foundMainBoard); // 递归调用
+        }
+    }
+}
+
+bool meshConnectionStatus = false;    // 默认状态
+void newConnectionCallback(uint32_t nodeId) { 
+  Serial.printf("--> remotecontroler: New Connection, nodeId = %u\n", nodeId);
+  String meshSubConnection=mesh.subConnectionJson(true);
+  Serial.printf("--> remotecontroler: New Connection, %s\n", meshSubConnection.c_str()); 
+  /*
+    一对一节点连接方式
+    {
+      "nodeId": 491568245,
+      "subs": [
+        {
+          "nodeId": 3520337297
+        }
+      ]
+    }  
+    或多个节点连接方式
+    {
+      "nodeId": 491568245,
+      "subs": [
+        {
+          "nodeId": 3186874889,
+          "subs": [
+            {
+              "nodeId": 3520337297
+            }
+          ]
+        }
+      ]
+    }
+  */
+
+  // 创建一个 JSON 文档
+  StaticJsonDocument<300> doc; // 根据需要调整大小
+
+  // 解析 JSON 字符串
+  DeserializationError error = deserializeJson(doc, meshSubConnection);
+
+  // 检查解析是否成功
+  if (error) {
+      Serial.print("Failed to parse JSON: ");
+      Serial.println(error.f_str());
+      return;
+  }
+
+  // 初始化找到的标志
+  bool foundRemoteControl = false;
+  bool foundMainBoard = false;
+
+  // 从根对象开始搜索
+  searchNodeId(doc.as<JsonObject>(), foundRemoteControl, foundMainBoard);
+
+  // 根据找到的结果设置 meshConnectionStatus
+  if (foundRemoteControl && foundMainBoard) {
+      meshConnectionStatus = true; // 同时找到了
+  } else {
+      meshConnectionStatus = false; // 找到一个则为 false
+  }
+
+    // 打印状态
+    Serial.printf("meshConnectionStatus: %s\n", meshConnectionStatus ? "true" : "false");
+}
+
+
+void changedConnectionCallback() {
+  Serial.printf("Changed connections\n");
+ 
+  nodes = mesh.getNodeList();
+
+  Serial.printf("Num nodes: %d\n", nodes.size());
+  Serial.printf("Connection list:");
+
+  SimpleList<uint32_t>::iterator node = nodes.begin();
+  while (node != nodes.end()) {
+    Serial.printf(" %u", *node);
+    node++;
+  }
+  Serial.println();
+  calc_delay = true;
+}
+
+void nodeTimeAdjustedCallback(int32_t offset) {
+  Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(), offset);
+}
+
+void delayReceivedCallback(uint32_t from, int32_t delay) {
+  Serial.printf("Delay to node %u is %d us\n", from, delay);
 }

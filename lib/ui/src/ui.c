@@ -6,6 +6,10 @@
 #include "ui.h"
 #include "ui_helpers.h"
 
+const char* switch1_state = "Close"; // 初始状态
+const char* switch2_state = "Close"; // 初始状态
+const char* switch3_state = "Close"; // 初始状态
+
 ///////////////////// VARIABLES ////////////////////
 
 
@@ -132,7 +136,8 @@ void ui_event_Switch1(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_checked_set_text_value(ui_Label17, target, "kai", "guan");
+        _ui_checked_set_text_value(ui_Label17, target, "Open", "Close");
+        switch1_state = (strcmp(switch1_state, "Close") == 0) ? "Open" : "Close"; // 更新状态
     }
 }
 
@@ -142,7 +147,8 @@ void ui_event_Switch2(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_checked_set_text_value(ui_Label18, target, "kai", "guan");
+        _ui_checked_set_text_value(ui_Label18, target, "Open", "Close");
+        switch2_state = (strcmp(switch2_state, "Close") == 0) ? "Open" : "Close"; // 更新状态
     }
 }
 
@@ -152,7 +158,8 @@ void ui_event_Switch3(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_checked_set_text_value(ui_Label19, target, "kai", "guan");
+        _ui_checked_set_text_value(ui_Label19, target, "Open", "Close");
+         switch3_state = (strcmp(switch3_state, "Close") == 0) ? "Open" : "Close"; // 更新状态
     }
 }
 

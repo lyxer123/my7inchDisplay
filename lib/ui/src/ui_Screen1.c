@@ -16,7 +16,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_x(ui_Label1, -160);
     lv_obj_set_y(ui_Label1, -140);
     lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label1, "zhanghao");
+    lv_label_set_text(ui_Label1, "Account");
     lv_obj_set_style_text_font(ui_Label1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label2 = lv_label_create(ui_Screen1);
@@ -25,7 +25,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_x(ui_Label2, -160);
     lv_obj_set_y(ui_Label2, -40);
     lv_obj_set_align(ui_Label2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label2, "mima");
+    lv_label_set_text(ui_Label2, "Password");
     lv_obj_set_style_text_font(ui_Label2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TextArea1 = lv_textarea_create(ui_Screen1);
@@ -34,7 +34,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_x(ui_TextArea1, 120);
     lv_obj_set_y(ui_TextArea1, -140);
     lv_obj_set_align(ui_TextArea1, LV_ALIGN_CENTER);
-    lv_textarea_set_text(ui_TextArea1, "cacac");
+    lv_textarea_set_text(ui_TextArea1, "Adminstrator");
     lv_textarea_set_placeholder_text(ui_TextArea1, "Placeholder...");
     lv_textarea_set_one_line(ui_TextArea1, true);
     lv_obj_set_style_text_font(ui_TextArea1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -47,7 +47,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_x(ui_TextArea2, 120);
     lv_obj_set_y(ui_TextArea2, -40);
     lv_obj_set_align(ui_TextArea2, LV_ALIGN_CENTER);
-    lv_textarea_set_text(ui_TextArea2, "fwfwgwf");
+    lv_textarea_set_text(ui_TextArea2, "FuseSwitch");
     lv_textarea_set_placeholder_text(ui_TextArea2, "Placeholder...");
     lv_textarea_set_one_line(ui_TextArea2, true);
     lv_obj_set_style_text_font(ui_TextArea2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);

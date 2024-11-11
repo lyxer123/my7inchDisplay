@@ -25,7 +25,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label4, 2);
     lv_obj_set_y(ui_Label4, -158);
     lv_obj_set_align(ui_Label4, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label4, "yonghu");
+    lv_label_set_text(ui_Label4, "UserName");
     lv_obj_set_style_text_font(ui_Label4, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label5 = lv_label_create(ui_Screen2);
@@ -34,7 +34,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label5, 173);
     lv_obj_set_y(ui_Label5, -162);
     lv_obj_set_align(ui_Label5, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label5, "agwrgw54165");
+    lv_label_set_text(ui_Label5, "Administrator");
     lv_obj_set_style_text_font(ui_Label5, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label6 = lv_label_create(ui_Screen2);
@@ -43,7 +43,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label6, 8);
     lv_obj_set_y(ui_Label6, -77);
     lv_obj_set_align(ui_Label6, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label6, "gonghao");
+    lv_label_set_text(ui_Label6, "ID");
     lv_obj_set_style_text_font(ui_Label6, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label7 = lv_label_create(ui_Screen2);
@@ -52,7 +52,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label7, 185);
     lv_obj_set_y(ui_Label7, -76);
     lv_obj_set_align(ui_Label7, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label7, "126516");
+    lv_label_set_text(ui_Label7, "88888888");
     lv_obj_set_style_text_font(ui_Label7, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label8 = lv_label_create(ui_Screen2);
@@ -61,7 +61,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label8, -74);
     lv_obj_set_y(ui_Label8, 1);
     lv_obj_set_align(ui_Label8, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label8, "A");
+    lv_label_set_text(ui_Label8, "A Phase");
     lv_obj_set_style_text_font(ui_Label8, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label9 = lv_label_create(ui_Screen2);
@@ -70,7 +70,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label9, 93);
     lv_obj_set_y(ui_Label9, 2);
     lv_obj_set_align(ui_Label9, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label9, "B");
+    lv_label_set_text(ui_Label9, "B Phase");
     lv_obj_set_style_text_font(ui_Label9, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label10 = lv_label_create(ui_Screen2);
@@ -79,7 +79,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label10, 271);
     lv_obj_set_y(ui_Label10, -1);
     lv_obj_set_align(ui_Label10, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label10, "C");
+    lv_label_set_text(ui_Label10, "C Phase");
     lv_obj_set_style_text_font(ui_Label10, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Switch1 = lv_switch_create(ui_Screen2);
@@ -166,7 +166,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label17, -73);
     lv_obj_set_y(ui_Label17, 45);
     lv_obj_set_align(ui_Label17, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label17, "guan");
+    lv_label_set_text(ui_Label17, "Close");
 
     ui_Label18 = lv_label_create(ui_Screen2);
     lv_obj_set_width(ui_Label18, LV_SIZE_CONTENT);   /// 1
@@ -174,7 +174,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label18, 96);
     lv_obj_set_y(ui_Label18, 46);
     lv_obj_set_align(ui_Label18, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label18, "guan");
+    lv_label_set_text(ui_Label18, "Close");
 
     ui_Label19 = lv_label_create(ui_Screen2);
     lv_obj_set_width(ui_Label19, LV_SIZE_CONTENT);   /// 1
@@ -182,7 +182,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_x(ui_Label19, 271);
     lv_obj_set_y(ui_Label19, 45);
     lv_obj_set_align(ui_Label19, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label19, "guan");
+    lv_label_set_text(ui_Label19, "Close");
 
     ui_Button3 = lv_btn_create(ui_Screen2);
     lv_obj_set_width(ui_Button3, 100);
